@@ -62,7 +62,7 @@
 <script>
 // --- זיהוי סגן ---
 const params = new URLSearchParams(window.location.search);
-const name = params.get("name") || "עומרי שדה - ק.אג''מ כנפי";
+const name = params.get("name");
 
 // --- מפתחות אחסון ---
 const scanKey = "firstScanDate_" + name;
@@ -169,3 +169,4 @@ showImage();
 
 </body>
 </html>
+
