@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>כרטיס פיקודי - יום גיבוש סגנים 2025</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f2f4f6;
+      padding: 24px;
+      text-align: center;
+    }
+    .card {
+      background: white;
+      padding: 24px;
+      border-radius: 14px;
+      max-width: 440px;
+      margin: auto;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    h1 {
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+    p {
+      font-size: 17px;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    ul {
+      text-align: right;
+      font-size: 16px;
+      line-height: 1.7;
+      padding-right: 18px;
+    }
+    button {
+      margin-top: 14px;
+      padding: 14px 18px;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      background: #1f2933;
+      color: white;
+      cursor: pointer;
+      width: 100%;
+    }
+    img {
+      margin-top: 16px;
+      max-width: 100%;
+      border-radius: 10px;
+    }
+    input {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card" id="content"></div>
+
+<script>
+// --- זיהוי סגן ---
+const params = new URLSearchParams(window.location.search);
+const name = params.get("name");
+
+// --- מפתחות אחסון ---
+const scanKey = "firstScanDate_" + name;
+const imageKey = "personalImage_" + name;
+
+// --- תאריך סריקה ראשונה ---
+let firstScan = localStorage.getItem(scanKey);
+if (!firstScan) {
+  firstScan = new Date().toISOString();
+  localStorage.setItem(scanKey, firstScan);
+}
+
+const firstDate = new Date(firstScan);
+const now = new Date();
+const diffMonths = (now - firstDate) / (1000 * 60 * 60 * 24 * 30);
+
+const content = document.getElementById("content");
+
+// --- תוכן לפי זמן ---
+if (diffMonths < 6) {
+  content.innerHTML = `
+    <h1>יום גיבוש סגנים 2025</h1>
+    <h2>${name}, ברוך הבא</h2>
+    <p>
+      "הדרך הטובה ביותר לחזות את העתיד,<br>
+      היא ליצור אותו בעצמך"
+    </p>
+
+    <button onclick="addToCalendar()">הוסף תזכורת לעוד 6 חודשים</button>
+
+    <button onclick="document.getElementById('imageInput').click()">
+      הוסף תמונה מהיום
+    </button>
+
+    <input type="file" id="imageInput" accept="image/*">
+    <img id="savedImage" style="display:none;">
+  `;
+} else {
+  content.innerHTML = `
+    <h1>${name}, חצי שנה אחרי</h1>
+    <p>זה הזמן לעצור ולבדוק:</p>
+    <ul>
+      <li>מה הספקת ב־6 החודשים האחרונים מתוך מה שרצית?</li>
+      <li>מה היית משנה בהסתכלות העתידית לאור האתגרים האחרונים?</li>
+      <li>האם הצוות שלך היום חזק, מגובש וערכי יותר?</li>
+    </ul>
+
+    <img id="savedImage" style="display:none;">
+  `;
+}
+
+// --- תזכורת ליומן ---
+function addToCalendar() {
+  const future = new Date();
+  future.setMonth(future.getMonth() + 6);
+
+  const format = d => d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+  const start = format(future);
+  const end = format(new Date(future.getTime() + 30 * 60000));
+
+  const url =
+    "https://www.google.com/calendar/render?action=TEMPLATE" +
+    "&text=" + encodeURIComponent("בדיקה עצמית – פיקוד ודרך") +
+    "&dates=" + start + "/" + end +
+    "&details=" + encodeURIComponent(
+      "לפני חצי שנה הבטחת לעצמך משהו.\nסרוק שוב את הכרטיס ושאל את עצמך:\nהאם יצרת את העתיד שרצית?"
+    );
+
+  window.open(url, "_blank");
+}
+
+// --- תמונה מקומית ---
+const inputHandler = () => {
+  const input = document.getElementById("imageInput");
+  const img = document.getElementById("savedImage");
+
+  if (!input) return;
+
+  input.addEventListener("change", function () {
+    const file = this.files[0];
+    const reader = new FileReader();
+
+    reader.onload = function () {
+      localStorage.setItem(imageKey, reader.result);
+      showImage();
+    };
+
+    if (file) reader.readAsDataURL(file);
+  });
+};
+
+function showImage() {
+  const img = document.getElementById("savedImage");
+  const data = localStorage.getItem(imageKey);
+  if (img && data) {
+    img.src = data;
+    img.style.display = "block";
+  }
+}
+
+inputHandler();
+showImage();
+</script>
+
+</body>
+</html>
